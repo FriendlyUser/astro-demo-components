@@ -61,6 +61,12 @@ export default {
    *
    * @return {Object} An object containing the initial data.
    */
+  props: {
+    onFileChange: {
+      type: Function,
+      default: () => {} 
+    }
+  },
   data() {
     return {
       isDragging: false,
@@ -70,6 +76,9 @@ export default {
   methods: {
     onChange() {
       this.files = [...this.$refs.file.files];
+      console.log("what are the props", this.onFileChange);
+      console.log(this.onFileChange);
+      this.onFileChange(this.files);
     },
 
     /**
@@ -129,6 +138,7 @@ export default {
       this.onChange();
       this.isDragging = false;
     },
+
   },
 };
 </script>

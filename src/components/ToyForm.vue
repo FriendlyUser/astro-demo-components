@@ -1,5 +1,5 @@
 <template>
-    <form>
+    <form @submit="onSubmit($event)">
         <div class="space-y-12">
             <div class="border-b border-gray-900/10 pb-12">
                 <div class="w-full text-right">
@@ -16,21 +16,23 @@
                         </div>
                     </div>
                     <div class="sm:col-span-6" v-else>
-                        <dropfile @image-added="imageAdded" />
+                        <dropfile :onFileChange ="handleFilesChanged" />
                     </div>
                 
 
-                
+                    <!--                 
                     <select v-model="option1">
                         <option v-for="opt in options1">{{ opt }}</option>
                     </select>
                 
                     <select v-model="option2">
                         <option v-for="opt in options2">{{ opt }}</option>
-                    </select>
+                    </select> 
+                    -->
                 </div>
             </div>
         </div>
+        <button type="submit">Submit</button>
     </form>
   </template>
   
@@ -49,14 +51,26 @@
         option1: '',
         options1: ["math", "toys"],
         option2: '',
-        options2: ["age", "anime"]
+        options2: ["age", "anime"],
+        files: [],
       }
     },
   
     methods: {
-      imageAdded(image) {
-        // Handle uploaded image
-      }
+        imageAdded(image) {
+            // Handle uploaded image
+        },
+        onSubmit(e) {
+            e.preventDefault()
+            console.log(this.files);
+        },
+        
+        handleFilesChanged(files) {
+            console.log("[handleFilesChanged]");
+            // Handle file changes
+            this.files = files
+            console.log(files);
+        } 
     }
   }
   </script>
