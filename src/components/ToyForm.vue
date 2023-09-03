@@ -38,6 +38,8 @@
   
   <script>
   import Dropfile from './Dropfile.vue'
+  import {storage, storageBucketId, functionId, functions, promptUrl} from './utils';
+
   
   export default {
     components: {
@@ -60,9 +62,74 @@
         imageAdded(image) {
             // Handle uploaded image
         },
-        onSubmit(e) {
+        async callLLM (prompt) {
+            const resp = await fetch(`${promptUrl}/?prompt=${prompt}`, {
+            
+            })
+            const data = await resp.json();
+
+            return data;
+            
+        },
+        async onSubmit(e) {
             e.preventDefault()
             console.log(this.files);
+            if (this.files.length) {
+                const file = this.files[0]; 
+                 // get file name from file
+                const name = file?.name;
+                // refactor this later to its own function.
+                if (file) {
+                    setFileUploading(true);
+                    const timestamp = new Date().getTime() * 1000; 
+                    const filename = `${timestamp}-${name}`;
+                    const response = await storage.createFile(storageBucketId, filename, file);
+                    const fileId = response.$id;
+                    const data = {
+                    "bucketId": storageBucketId,
+                    "fileId": fileId,
+                    };
+                    const dataStr = JSON.stringify(data);
+                    // data stringify
+                    const functionResp = await functions.createExecution(functionId, dataStr);
+                    // unix timestamp
+                    // parse json response from string
+                    const parsed = JSON.parse(functionResp.response);
+                    // setWhatIsImage(parsed?.first_entry?.generated_text || "no image available");
+
+                    const question = `
+                    Given the following description
+
+                    '''
+                    ${parsed?.first_entry?.generated_text}
+                    '''
+
+                    provide suggestions of toys that are suitable
+
+                    ensure the response is in json and in the following format
+
+                    '''
+                    [
+                        {
+                            "name": "",
+                            "age_range": "",
+                            "safety": "",
+                            "durability": ""
+                        },
+                        ...
+                    ]
+                    '''
+                    `;
+                    const llmResp = await callLLM(question);
+                    // extract the suggestion from the json object
+                    const regex = /({[\s\S]*})/; 
+
+                    const match = llmResp.resp.match(regex);
+                    const parsedLlm = JSON.parse(match[1]);
+   
+                    setLlmSuggestion(parsedLlm);  
+                }
+            }
         },
         
         handleFilesChanged(files) {
