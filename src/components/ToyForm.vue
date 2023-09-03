@@ -55,6 +55,7 @@
         option2: '',
         options2: ["age", "anime"],
         files: [],
+        llmResp: "",
       }
     },
   
@@ -80,7 +81,6 @@
                 const name = file?.name;
                 // refactor this later to its own function.
                 if (file) {
-                    setFileUploading(true);
                     const timestamp = new Date().getTime() * 1000; 
                     const filename = `${timestamp}-${name}`;
                     const response = await storage.createFile(storageBucketId, filename, file);
@@ -96,7 +96,7 @@
                     // parse json response from string
                     const parsed = JSON.parse(functionResp.response);
                     // setWhatIsImage(parsed?.first_entry?.generated_text || "no image available");
-
+                    console.log("What is parsed", parsed);
                     const question = `
                     Given the following description
 
@@ -120,14 +120,15 @@
                     ]
                     '''
                     `;
+                    console.log("did you get here")
                     const llmResp = await callLLM(question);
+                    console.log(llmResp);
                     // extract the suggestion from the json object
                     const regex = /({[\s\S]*})/; 
 
                     const match = llmResp.resp.match(regex);
                     const parsedLlm = JSON.parse(match[1]);
-   
-                    setLlmSuggestion(parsedLlm);  
+                    this.llmResp = parsedLlm
                 }
             }
         },
