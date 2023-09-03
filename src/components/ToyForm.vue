@@ -12,7 +12,7 @@
                 <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div class="sm:col-span-6" v-if="!showImageUpload">
                         <div class="text-center border-2 border-dashed border-gray-300  ">
-                            <textarea class ="h-64 max-2xl" placeholder="Enter text" v-model="text"></textarea>
+                            <textarea class ="h-64 max-2xl" v-model="text"></textarea>
                         </div>
                     </div>
                     <div class="sm:col-span-6" v-else>
