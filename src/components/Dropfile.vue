@@ -1,3 +1,4 @@
+<!-- Must be loaded client-side -->
 <template>
   <div class="max-w-2xl mx-aut0 min-h-64 bg-white">
     <div
@@ -55,6 +56,11 @@
 
 <script>
 export default {
+  /**
+   * Returns an object with the initial data for the component.
+   *
+   * @return {Object} An object containing the initial data.
+   */
   data() {
     return {
       isDragging: false,
@@ -66,6 +72,12 @@ export default {
       this.files = [...this.$refs.file.files];
     },
 
+    /**
+     * Generates a thumbnail for a given file.
+     *
+     * @param {File} file - The file for which to generate a thumbnail.
+     * @return {string} The URL of the generated thumbnail.
+     */
     generateThumbnail(file) {
       let fileSrc = URL.createObjectURL(file);
       setTimeout(() => {
@@ -95,10 +107,22 @@ export default {
       this.isDragging = true;
     },
 
+    /**
+     * Handles the dragleave event.
+     *
+     * @param {type} paramName - description of parameter
+     * @return {type} description of return value
+     */
     dragleave() {
       this.isDragging = false;
     },
 
+    /**
+     * A description of the entire function.
+     *
+     * @param {Event} e - The event object.
+     * @return {void}
+     */
     drop(e) {
       e.preventDefault();
       this.$refs.file.files = e.dataTransfer.files;
