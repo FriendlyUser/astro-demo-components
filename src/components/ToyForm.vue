@@ -86,8 +86,8 @@
                     const response = await storage.createFile(storageBucketId, filename, file);
                     const fileId = response.$id;
                     const data = {
-                    "bucketId": storageBucketId,
-                    "fileId": fileId,
+                        "bucketId": storageBucketId,
+                        "fileId": fileId
                     };
                     const dataStr = JSON.stringify(data);
                     // data stringify
