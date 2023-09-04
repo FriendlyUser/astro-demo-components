@@ -89,7 +89,10 @@
                         "bucketId": storageBucketId,
                         "fileId": fileId
                     };
+                    console.log(storageBucketId);
+                    console.log(fileId);
                     const dataStr = JSON.stringify(data);
+                    console.log(dataStr)
                     // data stringify
                     const functionResp = await functions.createExecution(functionId, dataStr);
                     // unix timestamp
