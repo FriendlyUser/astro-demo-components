@@ -123,8 +123,9 @@
                     ]
                     '''
                     `;
-                    console.log("did you get here")
-                    const llmResp = await callLLM(question);
+                    console.log("did you get here");
+                    return;
+                    const llmResp = await this.callLLM(question);
                     console.log(llmResp);
                     // extract the suggestion from the json object
                     const regex = /({[\s\S]*})/; 
