@@ -13,9 +13,9 @@ const storage = new Storage(client);
 
 const functions = new Functions(client);
 
-const googleSearchEngineId = "76c9831068d474207";
+const googleSearchEngineId = import.meta.env.PUBLIC_GOOGLE_ENGINE_ID;   
 // this is an api key for my google search, its fine to leak
-const googleApiKey = "AIzaSyCoLAbWhN0E6mji5BskpCnJO51g0VmINMw";
+const googleApiKey = import.meta.env.PUBLIC_GOOGLE_API_KEY;
 
 function get(obj, path, defaultValue = '') {
 return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? defaultValue;

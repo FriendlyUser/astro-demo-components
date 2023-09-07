@@ -3,6 +3,15 @@ on:
   push:
     branches:
       - main
+
+env:
+  PUBLIC_APPWRITE_PROJECT_ID: ${{ secrets.PUBLIC_APPWRITE_PROJECT_ID }}
+  PUBLIC_APPWRITE_BUCKET_ID: ${{ secrets.PUBLIC_APPWRITE_BUCKET_ID }}
+  PUBLIC_APPWRITE_FUNCTION_ID: ${{ secrets.PUBLIC_APPWRITE_FUNCTION_ID }}
+  PUBLIC_HUGCHAT_URL: ${{ secrets.PUBLIC_HUGCHAT_URL }}
+  PUBLIC_GOOGLE_ENGINE_ID: ${{ secrets.PUBLIC_GOOGLE_ENGINE_ID }}
+  PUBLIC_GOOGLE_API_KEY: ${{ secrets.PUBLIC_GOOGLE_API_KEY }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -10,6 +19,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: dump env vars to .env
+      run: |
+        echo "PUBLIC_APPWRITE_PROJECT_ID=${{ env.PUBLIC_APPWRITE_PROJECT_ID }}" >> .env
+        echo "PUBLIC_APPWRITE_BUCKET_ID=${{ env.PUBLIC_APPWRITE_BUCKET_ID }}" >> .env
+        echo "PUBLIC_APPWRITE_FUNCTION_ID=${{ env.PUBLIC_APPWRITE_FUNCTION_ID }}" >> .env
+        echo "PUBLIC_HUGCHAT_URL=${{ env.PUBLIC_HUGCHAT_URL }}" >> .env
+        echo "PUBLIC_GOOGLE_ENGINE_ID=${{ env.PUBLIC_GOOGLE_ENGINE_ID }}" >> .env
+        echo "PUBLIC_GOOGLE_API_KEY=${{ env.PUBLIC_GOOGLE_API_KEY }}" >> .env
     - name: Install and Build
       run: |
         npm install
