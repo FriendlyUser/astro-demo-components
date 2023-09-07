@@ -14,6 +14,7 @@ const storage = new Storage(client);
 const functions = new Functions(client);
 
 const googleSearchEngineId = "76c9831068d474207";
+// this is an api key for my google search, its fine to leak
 const googleApiKey = "AIzaSyCoLAbWhN0E6mji5BskpCnJO51g0VmINMw";
 
 function get(obj, path, defaultValue = '') {
