@@ -34,11 +34,25 @@
         </div>
         <button type="submit">Submit</button>
     </form>
+    <div v-if="llmResp">
+        {{ llmResp }}
+    </div>
+    <div v-if="searchItems.length >= 1">
+        <!-- ... -->  
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="-mx-6 grid grid-cols-2 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-3">
+                <!-- loop through searchItems-->
+                <a v-for="item in searchItems" :href="item.link" :key="item.link">
+                    <img class="max-h-12 w-full object-contain" :src="item.defaultImage" />
+                </a>
+            </div>
+        </div>
+    </div>
   </template>
   
   <script>
   import Dropfile from './Dropfile.vue'
-  import {storage, storageBucketId, functionId, functions, promptUrl} from './utils';
+  import {storage, storageBucketId, functionId, functions, promptUrl, googleApiKey, get, googleSearchEngineId} from './utils';
 
   
   export default {
@@ -56,6 +70,7 @@
         options2: ["age", "anime"],
         files: [],
         llmResp: "",
+        searchItems: [],
       }
     },
   
@@ -65,16 +80,37 @@
         },
         async callLLM (prompt) {
             const resp = await fetch(`${promptUrl}/?prompt=${prompt}`, {
-            
+                timeout: 60000
             })
             const data = await resp.json();
 
             return data;
             
         },
+
+        async googleSearch(query) {
+            try {
+                const resp = await fetch(`https://www.googleapis.com/customsearch/v1?q=${query}&key=${googleApiKey}&cx=${googleSearchEngineId}`)
+                const data = await resp.json();
+                console.log(data);
+                const queryItems = get(data, 'items');
+                console.log(queryItems);
+                // map through queryItems grab first image in cse_image
+                const simpleItems = queryItems.map(item => {
+                    const defaultImage = item?.pagemap?.cse_image?.[0]?.src || item?.pagemap?.cse_thumbnail?.src;
+                    return {
+                        ...item,
+                        defaultImage
+                    }
+                })
+                return simpleItems
+            } catch (e) {
+                console.log(e);
+                this.queryResp = '';
+            }
+        },
         async onSubmit(e) {
             e.preventDefault()
-            console.log(this.files);
             if (this.files.length) {
                 const file = this.files[0]; 
                  // get file name from file
@@ -89,17 +125,13 @@
                         "bucketId": storageBucketId,
                         "fileId": fileId
                     };
-                    console.log(storageBucketId);
-                    console.log(fileId);
                     const dataStr = JSON.stringify(data);
-                    console.log(dataStr)
                     // data stringify
                     const functionResp = await functions.createExecution(functionId, dataStr);
                     // unix timestamp
                     // parse json response from string
                     const parsed = JSON.parse(functionResp.response);
                     // setWhatIsImage(parsed?.first_entry?.generated_text || "no image available");
-                    console.log("What is parsed", parsed);
                     const question = `
                     Given the following description
 
@@ -122,20 +154,26 @@
                         ...
                     ]
                     '''
+                    only return json.
                     `;
-                    console.log("did you get here");
-                    return;
                     const llmResp = await this.callLLM(question);
-                    console.log(llmResp);
                     // extract the suggestion from the json object
-                    const regex = /({[\s\S]*})/; 
-
-                    const match = llmResp.resp.match(regex);
+                    const regex = /(\[[\s\S]*\])/;
+                    const parsedResp = llmResp.resp?.replace("/n", "");
+                    const match = parsedResp.match(regex);
                     const parsedLlm = JSON.parse(match[1]);
                     this.llmResp = parsedLlm
+
+                    // iterate through first object key in parsedLlm
+                    const firstKey = Object.keys(parsedLlm[0])[0];
+                    const firstValue = parsedLlm[0][firstKey];
+                    const simplifiedItems = await this.googleSearch(firstValue);
+                    console.log(simplifiedItems);
+                    this.searchItems = simplifiedItems;
                 }
             }
         },
+        
         
         handleFilesChanged(files) {
             console.log("[handleFilesChanged]");

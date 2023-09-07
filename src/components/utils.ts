@@ -13,6 +13,13 @@ const storage = new Storage(client);
 
 const functions = new Functions(client);
 
+const googleSearchEngineId = "76c9831068d474207";
+const googleApiKey = "AIzaSyCoLAbWhN0E6mji5BskpCnJO51g0VmINMw";
+
+function get(obj, path, defaultValue = '') {
+return path.split('.').reduce((acc, key) => acc?.[key], obj) ?? defaultValue;
+}
+
 export {
     client,
     functions,
@@ -21,5 +28,8 @@ export {
     storageBucketId,
     promptUrl,
     functionId,
-    Query
+    Query,
+    googleSearchEngineId,
+    googleApiKey,
+    get
 }
