@@ -118,14 +118,30 @@
         imageAdded(image) {
             // Handle uploaded image
         },
-        async callLLM (prompt) {
-            const resp = await fetch(`${promptUrl}/?prompt=${prompt}`, {
-                timeout: 60000
-            })
-            const data = await resp.json();
+        async callLLM(prompt, retries = 1) {
+            const options = {
+                method: "GET",
+                timeout: 60000,
+            }
+            try {
 
-            return data;
-            
+                const resp = await fetch(`${promptUrl}/?prompt=${prompt}`, options);
+                const data = await resp.json();
+                return data;
+
+            } catch (error) {
+
+            // Check if we have any retries left
+            if (retries > 0) {
+                
+                    // Retry recursively
+                    return await this.callLLM(prompt, retries - 1);
+
+                } else {
+                    // No retries left, throw error
+                    throw error;
+                }
+            }
         },
 
         async googleSearch(query) {
@@ -171,12 +187,12 @@
 
         },
 
-        async handlePrompt(parsed) {
+        async handlePrompt(text: string) {
             const question = `
             Given the following description
 
             '''
-            ${parsed?.first_entry?.generated_text}
+            ${text}
             '''
 
             provide suggestions of toys that are suitable
@@ -213,9 +229,10 @@
         async onSubmit(e) {
             e.preventDefault()
             if (this.isLoading) {
-                return
+                return;
             }
             this.isLoading = true
+            console.log(this.text);
             if (this.text?.length && this.showImageUpload === false) {
                 await this.handlePrompt(this.text);
             } else {
@@ -226,7 +243,7 @@
                 if (file) {
                     const parsed = await this.processFile(file);
                     // migrate all the code above to another function, so users can just input text
-                    await this.handlePrompt(parsed);
+                    await this.handlePrompt(parsed?.first_entry?.generated_text);
                     // setWhatIsImage(parsed?.first_entry?.generated_text || "no image available");
                     
                 }
